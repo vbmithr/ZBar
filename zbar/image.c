@@ -21,6 +21,7 @@
  *  http://sourceforge.net/projects/zbar
  *------------------------------------------------------------------------*/
 
+#include <sys/time.h>
 #include "error.h"
 #include "image.h"
 #include "refcnt.h"
@@ -93,6 +94,13 @@ void zbar_image_get_crop (const zbar_image_t *img,
     if(w) *w = img->crop_w;
     if(h) *h = img->crop_h;
 }
+
+void zbar_image_get_timestamp (const zbar_image_t *img,
+                               struct timeval *timestamp)
+{
+    if(timestamp) *timestamp = img->timestamp;
+}
+
 
 const void *zbar_image_get_data (const zbar_image_t *img)
 {

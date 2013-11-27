@@ -23,6 +23,9 @@
 #ifndef _ZBAR_H_
 #define _ZBAR_H_
 
+/* for struct timeval */
+#include <sys/time.h>
+
 /** @file
  * ZBar Barcode Reader C API definition
  */
@@ -623,6 +626,13 @@ extern unsigned long zbar_image_get_data_length(const zbar_image_t *img);
  * @returns NULL if the image has not been scanned
  * @since 0.10
  */
+
+/** return the timestamp associated with an image
+ * @note TBD
+ */
+extern void zbar_image_get_timestamp(const zbar_image_t *image,
+                                     struct timeval *timestamp);
+
 extern const zbar_symbol_set_t*
 zbar_image_get_symbols(const zbar_image_t *image);
 
@@ -731,6 +741,7 @@ extern int zbar_image_write(const zbar_image_t *image,
  * @note TBD
  */
 extern zbar_image_t *zbar_image_read(char *filename);
+
 
 /*@}*/
 

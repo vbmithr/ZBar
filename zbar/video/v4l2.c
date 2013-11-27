@@ -98,6 +98,7 @@ static zbar_image_t *v4l2_dq (zbar_video_t *vdo)
             assert(vbuf.index >= 0);
             assert(vbuf.index < vdo->num_images);
             img = vdo->images[vbuf.index];
+            img->timestamp = vbuf.timestamp;
         }
         else {
             /* reverse map pointer back to image (FIXME) */
@@ -107,6 +108,7 @@ static zbar_image_t *v4l2_dq (zbar_video_t *vdo)
             assert(i >= 0);
             assert(i < vdo->num_images);
             img = vdo->images[i];
+            img->timestamp = vbuf.timestamp;
             assert(vbuf.m.userptr == (unsigned long)img->data);
         }
     }
