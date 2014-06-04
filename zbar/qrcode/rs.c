@@ -454,7 +454,7 @@ rs_poly_mult (const rs_gf256 * _gf, unsigned char *_p, int _dp1,
 /*Computes the syndrome of a codeword.*/
 static void
 rs_calc_syndrome (const rs_gf256 * _gf, int _m0,
-		  unsigned char *_s, int _npar, const unsigned char *_data,
+		  unsigned char * restrict _s, int _npar, const unsigned char * restrict _data,
 		  int _ndata)
 {
   int i;
@@ -724,8 +724,8 @@ rs_compute_genpoly (const rs_gf256 * _gf, int _m0,
 /*Adds _npar<=_ndata parity bytes to an _ndata-_npar byte message.
   _data must contain room for _ndata<256 bytes.*/
 void
-rs_encode (const rs_gf256 * _gf, unsigned char *_data, int _ndata,
-	   const unsigned char *_genpoly, int _npar)
+rs_encode (const rs_gf256 * _gf, unsigned char * restrict _data, int _ndata,
+	   const unsigned char * restrict _genpoly, int _npar)
 {
   unsigned char *lfsr;
   unsigned d;

@@ -123,7 +123,7 @@ bch15_5_calc_epos (unsigned _epos[3], unsigned _s[3])
 }
 
 int
-bch15_5_correct (unsigned *_y)
+bch15_5_correct (unsigned * restrict _y)
 {
   unsigned s[3];
   unsigned epos[3];

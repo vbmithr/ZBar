@@ -34,9 +34,9 @@ struct isaac_ctx
 };
 
 
-void isaac_init (isaac_ctx * _ctx, const void *_seed, int _nseed);
+void isaac_init (isaac_ctx * restrict _ctx, const void *_seed, int _nseed);
 
-unsigned isaac_next_uint32 (isaac_ctx * _ctx);
-unsigned isaac_next_uint (isaac_ctx * _ctx, unsigned _n);
+unsigned isaac_next_uint32 (isaac_ctx * restrict _ctx);
+unsigned isaac_next_uint (isaac_ctx * restrict _ctx, unsigned _n);
 
 #endif

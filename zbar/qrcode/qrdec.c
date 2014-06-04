@@ -75,7 +75,7 @@ struct qr_reader
 
 /*Initializes a client reader handle.*/
 static void
-qr_reader_init (qr_reader * reader)
+qr_reader_init (qr_reader * restrict reader)
 {
   /*time_t now;
      now=time(NULL);
@@ -95,7 +95,7 @@ _zbar_qr_create (void)
 
 /*Frees a client reader handle.*/
 void
-_zbar_qr_destroy (qr_reader * reader)
+_zbar_qr_destroy (qr_reader * restrict reader)
 {
   zprintf (1, "max finder lines = %dx%d\n",
 	   reader->finder_lines[0].clines, reader->finder_lines[1].clines);
@@ -108,7 +108,7 @@ _zbar_qr_destroy (qr_reader * reader)
 
 /* reset finder state between scans */
 void
-_zbar_qr_reset (qr_reader * reader)
+_zbar_qr_reset (qr_reader * restrict reader)
 {
   reader->finder_lines[0].nlines = 0;
   reader->finder_lines[1].nlines = 0;
@@ -160,7 +160,7 @@ struct qr_finder_center
 
 
 static int
-qr_finder_vline_cmp (const void *_a, const void *_b)
+qr_finder_vline_cmp (const void * restrict _a, const void * restrict _b)
 {
   const qr_finder_line *a;
   const qr_finder_line *b;
@@ -183,9 +183,9 @@ qr_finder_vline_cmp (const void *_a, const void *_b)
   _v:         0 for horizontal lines, or 1 for vertical lines.
   Return: The number of clusters.*/
 static int
-qr_finder_cluster_lines (qr_finder_cluster * _clusters,
+qr_finder_cluster_lines (qr_finder_cluster * restrict _clusters,
 			 qr_finder_line ** _neighbors,
-			 qr_finder_line * _lines, int _nlines, int _v)
+			 qr_finder_line * restrict _lines, int _nlines, int _v)
 {
   unsigned char *mark;
   qr_finder_line **neighbors;
@@ -273,8 +273,8 @@ qr_finder_cluster_lines (qr_finder_cluster * _clusters,
   _v:          0 for horizontal lines and 1 for vertical lines.
   Return: The new total number of edge points.*/
 static int
-qr_finder_edge_pts_fill (qr_finder_edge_pt * _edge_pts, int _nedge_pts,
-			 qr_finder_cluster ** _neighbors, int _nneighbors,
+qr_finder_edge_pts_fill (qr_finder_edge_pt * restrict _edge_pts, int _nedge_pts,
+			 qr_finder_cluster ** restrict _neighbors, int _nneighbors,
 			 int _v)
 {
   int i;
@@ -329,8 +329,8 @@ qr_finder_center_cmp (const void *_a, const void *_b)
   _vline: The vertical line.
   Return: A non-zero value if the lines cross, or zero if they do not.*/
 static int
-qr_finder_lines_are_crossing (const qr_finder_line * _hline,
-			      const qr_finder_line * _vline)
+qr_finder_lines_are_crossing (const qr_finder_line * restrict _hline,
+			      const qr_finder_line * restrict _vline)
 {
   return
     _hline->pos[0] <= _vline->pos[0]
@@ -467,8 +467,8 @@ qr_finder_find_crossings (qr_finder_center * _centers,
   _height:   The height of the image.
   Return: The number of putative finder centers located.*/
 static int
-qr_finder_centers_locate (qr_finder_center ** _centers,
-			  qr_finder_edge_pt ** _edge_pts, qr_reader * reader,
+qr_finder_centers_locate (qr_finder_center ** restrict _centers,
+			  qr_finder_edge_pt ** restrict _edge_pts, qr_reader * restrict reader,
 			  int _width, int _height)
 {
   qr_finder_line *hlines = reader->finder_lines[0].lines;
@@ -641,7 +641,7 @@ qr_line_fit (qr_line _l, int _x0, int _y0,
 /*Perform a least-squares line fit to a list of points.
   At least two points are required.*/
 static void
-qr_line_fit_points (qr_line _l, qr_point * _p, int _np, int _res)
+qr_line_fit_points (qr_line _l, qr_point * restrict _p, int _np, int _res)
 {
   int sx;
   int sy;
@@ -743,7 +743,7 @@ struct qr_aff
 
 
 static void
-qr_aff_init (qr_aff * _aff,
+qr_aff_init (qr_aff * restrict _aff,
 	     const qr_point _p0, const qr_point _p1, const qr_point _p2,
 	     int _res)
 {
@@ -776,7 +776,7 @@ qr_aff_init (qr_aff * _aff,
 
 /*Map from the image (at subpel resolution) into the square domain.*/
 static void
-qr_aff_unproject (qr_point _q, const qr_aff * _aff, int _x, int _y)
+qr_aff_unproject (qr_point _q, const qr_aff * restrict _aff, int _x, int _y)
 {
   _q[0] =
     _aff->inv[0][0] * (_x - _aff->x0) + _aff->inv[0][1] * (_y - _aff->y0) +
@@ -788,7 +788,7 @@ qr_aff_unproject (qr_point _q, const qr_aff * _aff, int _x, int _y)
 
 /*Map from the square domain into the image (at subpel resolution).*/
 static void
-qr_aff_project (qr_point _p, const qr_aff * _aff, int _u, int _v)
+qr_aff_project (qr_point _p, const qr_aff * restrict _aff, int _u, int _v)
 {
   _p[0] =
     (_aff->fwd[0][0] * _u + _aff->fwd[0][1] * _v +
@@ -816,7 +816,7 @@ struct qr_hom
 
 
 static void
-qr_hom_init (qr_hom * _hom, int _x0, int _y0,
+qr_hom_init (qr_hom * restrict _hom, int _x0, int _y0,
 	     int _x1, int _y1, int _x2, int _y2, int _x3, int _y3, int _res)
 {
   int dx10;
@@ -903,7 +903,7 @@ qr_hom_init (qr_hom * _hom, int _x0, int _y0,
 /*Map from the image (at subpel resolution) into the square domain.
   Returns a negative value if the point went to infinity.*/
 static int
-qr_hom_unproject (qr_point _q, const qr_hom * _hom, int _x, int _y)
+qr_hom_unproject (qr_point _q, const qr_hom * restrict _hom, int _x, int _y)
 {
   int x;
   int y;
@@ -939,7 +939,7 @@ qr_hom_unproject (qr_point _q, const qr_hom * _hom, int _x, int _y)
   In loops, we can avoid many multiplies by computing the homogeneous _x, _y,
    and _w incrementally, but we cannot avoid the divisions, done here.*/
 static void
-qr_hom_fproject (qr_point _p, const qr_hom * _hom, int _x, int _y, int _w)
+qr_hom_fproject (qr_point _p, const qr_hom * restrict _hom, int _x, int _y, int _w)
 {
   if (_w == 0)
     {
@@ -963,7 +963,7 @@ qr_hom_fproject (qr_point _p, const qr_hom * _hom, int _x, int _y, int _w)
 /*Map from the square domain into the image (at subpel resolution).
   Currently only used directly by debug code.*/
 static void
-qr_hom_project (qr_point _p, const qr_hom * _hom, int _u, int _v)
+qr_hom_project (qr_point _p, const qr_hom * restrict _hom, int _u, int _v)
 {
   qr_hom_fproject (_p, _hom,
 		   _hom->fwd[0][0] * _u + _hom->fwd[0][1] * _v,
@@ -996,7 +996,7 @@ struct qr_finder
 
 
 static int
-qr_cmp_edge_pt (const void *_a, const void *_b)
+qr_cmp_edge_pt (const void * restrict _a, const void * restrict _b)
 {
   const qr_finder_edge_pt *a;
   const qr_finder_edge_pt *b;
@@ -1012,7 +1012,7 @@ qr_cmp_edge_pt (const void *_a, const void *_b)
   The resulting list of edge points is sorted by edge index, with ties broken
    by extent.*/
 static void
-qr_finder_edge_pts_aff_classify (qr_finder * _f, const qr_aff * _aff)
+qr_finder_edge_pts_aff_classify (qr_finder * restrict _f, const qr_aff * restrict _aff)
 {
   qr_finder_center *c;
   int i;
@@ -1045,7 +1045,7 @@ qr_finder_edge_pts_aff_classify (qr_finder * _f, const qr_aff * _aff)
   The resulting list of edge points is sorted by edge index, with ties broken
    by extent.*/
 static void
-qr_finder_edge_pts_hom_classify (qr_finder * _f, const qr_hom * _hom)
+qr_finder_edge_pts_hom_classify (qr_finder * restrict _f, const qr_hom * restrict _hom)
 {
   qr_finder_center *c;
   int i;
@@ -1204,8 +1204,8 @@ qr_finder_estimate_module_size_and_version (qr_finder * _f,
 
 /*Eliminate outliers from the classified edge points with RANSAC.*/
 static void
-qr_finder_ransac (qr_finder * _f, const qr_aff * _hom,
-		  isaac_ctx * _isaac, int _e)
+qr_finder_ransac (qr_finder * _f, const qr_aff * restrict _hom,
+		  isaac_ctx * restrict _isaac, int _e)
 {
   qr_finder_edge_pt *edge_pts;
   int best_ninliers;
@@ -1344,7 +1344,7 @@ qr_line_fit_finder_edge (qr_line _l, const qr_finder * _f, int _e, int _res)
    least one point on each edge using the estimated module size if it has no
    inliers.*/
 static void
-qr_line_fit_finder_pair (qr_line _l, const qr_aff * _aff,
+qr_line_fit_finder_pair (qr_line _l, const qr_aff * restrict _aff,
 			 const qr_finder * _f0, const qr_finder * _f1, int _e)
 {
   qr_point *pts;
@@ -1402,7 +1402,7 @@ qr_line_fit_finder_pair (qr_line _l, const qr_aff * _aff,
 }
 
 static int
-qr_finder_quick_crossing_check (const unsigned char *_img,
+qr_finder_quick_crossing_check (const unsigned char * restrict _img,
 				int _width, int _height, int _x0, int _y0,
 				int _x1, int _y1, int _v)
 {
@@ -1431,7 +1431,7 @@ qr_finder_quick_crossing_check (const unsigned char *_img,
    image, and the endpoints are already assumed to have the value !_v.
   The returned value is in subpel resolution.*/
 static int
-qr_finder_locate_crossing (const unsigned char *_img,
+qr_finder_locate_crossing (const unsigned char * restrict _img,
 			   int _width, int _height, int _x0, int _y0, int _x1,
 			   int _y1, int _v, qr_point _p)
 {
@@ -1494,7 +1494,7 @@ qr_finder_locate_crossing (const unsigned char *_img,
 }
 
 static int
-qr_aff_line_step (const qr_aff * _aff, qr_line _l, int _v, int _du, int *_dv)
+qr_aff_line_step (const qr_aff * restrict _aff, qr_line _l, int _v, int _du, int * restrict _dv)
 {
   int shift;
   int round;
@@ -1543,7 +1543,7 @@ qr_hamming_dist (unsigned _y1, unsigned _y2, int _maxdiff)
 /*Retrieve a bit (guaranteed to be 0 or 1) from the image, given coordinates in
    subpel resolution which have not been bounds checked.*/
 static int
-qr_img_get_bit (const unsigned char *_img, int _width, int _height,
+qr_img_get_bit (const unsigned char * restrict _img, int _width, int _height,
 		int _x, int _y)
 {
   _x >>= QR_FINDER_SUBPREC;
@@ -1557,8 +1557,8 @@ qr_img_get_bit (const unsigned char *_img, int _width, int _height,
 
 static void
 qr_finder_dump_aff_undistorted (qr_finder * _ul, qr_finder * _ur,
-				qr_finder * _dl, qr_aff * _aff,
-				const unsigned char *_img, int _width,
+				qr_finder * _dl, qr_aff * restrict _aff,
+				const unsigned char * restrict _img, int _width,
 				int _height)
 {
   unsigned char *gimg;
@@ -1655,7 +1655,7 @@ qr_finder_dump_aff_undistorted (qr_finder * _ul, qr_finder * _ur,
 static void
 qr_finder_dump_hom_undistorted (qr_finder * _ul, qr_finder * _ur,
 				qr_finder * _dl, qr_hom * _hom,
-				const unsigned char *_img, int _width,
+				const unsigned char * restrict _img, int _width,
 				int _height)
 {
   unsigned char *gimg;
@@ -1766,7 +1766,7 @@ struct qr_hom_cell
 
 
 static void
-qr_hom_cell_init (qr_hom_cell * _cell, int _u0, int _v0,
+qr_hom_cell_init (qr_hom_cell * restrict _cell, int _u0, int _v0,
 		  int _u1, int _v1, int _u2, int _v2, int _u3, int _v3,
 		  int _x0, int _y0, int _x1, int _y1, int _x2, int _y2,
 		  int _x3, int _y3)
@@ -1972,7 +1972,7 @@ qr_hom_cell_fproject (qr_point _p, const qr_hom_cell * _cell,
 }
 
 static void
-qr_hom_cell_project (qr_point _p, const qr_hom_cell * _cell,
+qr_hom_cell_project (qr_point _p, const qr_hom_cell * restrict _cell,
 		     int _u, int _v, int _res)
 {
   _u -= _cell->u0 << _res;
@@ -1992,7 +1992,7 @@ qr_hom_cell_project (qr_point _p, const qr_hom_cell * _cell,
    at the given location in the original image (at subpel precision).*/
 static unsigned
 qr_alignment_pattern_fetch (qr_point _p[5][5], int _x0, int _y0,
-			    const unsigned char *_img, int _width,
+			    const unsigned char * restrict _img, int _width,
 			    int _height)
 {
   unsigned v;
@@ -2016,9 +2016,9 @@ qr_alignment_pattern_fetch (qr_point _p[5][5], int _x0, int _y0,
 
 /*Searches for an alignment pattern near the given location.*/
 static int
-qr_alignment_pattern_search (qr_point _p, const qr_hom_cell * _cell,
+qr_alignment_pattern_search (qr_point _p, const qr_hom_cell * restrict _cell,
 			     int _u, int _v, int _r,
-			     const unsigned char *_img, int _width,
+			     const unsigned char * restrict _img, int _width,
 			     int _height)
 {
   qr_point c[4];
@@ -2282,8 +2282,8 @@ qr_alignment_pattern_search (qr_point _p, const qr_hom_cell * _cell,
 
 static int
 qr_hom_fit (qr_hom * _hom, qr_finder * _ul, qr_finder * _ur,
-	    qr_finder * _dl, qr_point _p[4], const qr_aff * _aff,
-	    isaac_ctx * _isaac, const unsigned char *_img, int _width,
+	    qr_finder * _dl, qr_point _p[4], const qr_aff * restrict _aff,
+	    isaac_ctx * _isaac, const unsigned char * restrict _img, int _width,
 	    int _height)
 {
   qr_point *b;
@@ -2732,7 +2732,7 @@ static const unsigned BCH18_6_CODES[34] = {
           If more than 3 errors are detected, returns a negative value and
            performs no correction.*/
 static int
-bch18_6_correct (unsigned *_y)
+bch18_6_correct (unsigned * restrict _y)
 {
   unsigned x;
   unsigned y;
@@ -2776,8 +2776,8 @@ bch18_6_encode (unsigned _x)
 
 /*Reads the version bits near a finder module and decodes the version number.*/
 static int
-qr_finder_version_decode (qr_finder * _f, const qr_hom * _hom,
-			  const unsigned char *_img, int _width, int _height,
+qr_finder_version_decode (qr_finder * _f, const qr_hom * restrict _hom,
+			  const unsigned char * restrict _img, int _width, int _height,
 			  int _dir)
 {
   qr_point q;
@@ -2861,8 +2861,8 @@ qr_finder_version_decode (qr_finder * _f, const qr_hom * _hom,
 /*Reads the format info bits near the finder modules and decodes them.*/
 static int
 qr_finder_fmt_info_decode (qr_finder * _ul, qr_finder * _ur,
-			   qr_finder * _dl, const qr_hom * _hom,
-			   const unsigned char *_img, int _width, int _height)
+			   qr_finder * _dl, const qr_hom * restrict _hom,
+			   const unsigned char * restrict _img, int _width, int _height)
 {
   qr_point p;
   unsigned lo[2];
@@ -3030,7 +3030,7 @@ struct qr_sampling_grid
 
 /*Mark a given region as belonging to the function pattern.*/
 static void
-qr_sampling_grid_fp_mask_rect (qr_sampling_grid * _grid, int _dim,
+qr_sampling_grid_fp_mask_rect (qr_sampling_grid * restrict _grid, int _dim,
 			       int _u, int _v, int _w, int _h)
 {
   int i;
@@ -3049,7 +3049,7 @@ qr_sampling_grid_fp_mask_rect (qr_sampling_grid * _grid, int _dim,
 
 /*Determine if a given grid location is inside the function pattern.*/
 static int
-qr_sampling_grid_is_in_fp (const qr_sampling_grid * _grid, int _dim,
+qr_sampling_grid_is_in_fp (const qr_sampling_grid * restrict _grid, int _dim,
 			   int _u, int _v)
 {
   return _grid->fpmask[_u * (_dim + QR_INT_BITS - 1 >> QR_INT_LOGBITS)
@@ -3069,7 +3069,7 @@ static const unsigned char QR_ALIGNMENT_SPACING[34] = {
 };
 
 static inline void
-qr_svg_points (const char *cls, qr_point * p, int n)
+qr_svg_points (const char * restrict cls, qr_point * p, int n)
 {
   int i;
   svg_path_start (cls, 1, 0, 0);
@@ -3090,10 +3090,10 @@ qr_svg_points (const char *cls, qr_point * p, int n)
   _height:   The height of the input image.
   Return: 0 on success, or a negative value on error.*/
 static void
-qr_sampling_grid_init (qr_sampling_grid * _grid, int _version,
+qr_sampling_grid_init (qr_sampling_grid * restrict _grid, int _version,
 		       const qr_point _ul_pos, const qr_point _ur_pos,
 		       const qr_point _dl_pos, qr_point _p[4],
-		       const unsigned char *_img, int _width, int _height)
+		       const unsigned char * restrict _img, int _width, int _height)
 {
   qr_hom_cell base_cell;
   int align_pos[7];
@@ -3287,7 +3287,7 @@ qr_sampling_grid_init (qr_sampling_grid * _grid, int _version,
 }
 
 static void
-qr_sampling_grid_clear (qr_sampling_grid * _grid)
+qr_sampling_grid_clear (qr_sampling_grid * restrict _grid)
 {
   free (_grid->fpmask);
   free (_grid->cells[0]);
@@ -3297,8 +3297,8 @@ qr_sampling_grid_clear (qr_sampling_grid * _grid)
 
 #if defined(QR_DEBUG)
 static void
-qr_sampling_grid_dump (qr_sampling_grid * _grid, int _version,
-		       const unsigned char *_img, int _width, int _height)
+qr_sampling_grid_dump (qr_sampling_grid * restrict _grid, int _version,
+		       const unsigned char * restrict _img, int _width, int _height)
 {
   unsigned char *gimg;
   FILE *fout;
@@ -3382,7 +3382,7 @@ qr_sampling_grid_dump (qr_sampling_grid * _grid, int _version,
 
 /*Generate the data mask corresponding to the given mask pattern.*/
 static void
-qr_data_mask_fill (unsigned *_mask, int _dim, int _pattern)
+qr_data_mask_fill (unsigned * restrict _mask, int _dim, int _pattern)
 {
   int stride;
   int i;
@@ -3538,9 +3538,9 @@ qr_data_mask_fill (unsigned *_mask, int _dim, int _pattern)
 }
 
 static void
-qr_sampling_grid_sample (const qr_sampling_grid * _grid,
-			 unsigned *_data_bits, int _dim, int _fmt_info,
-			 const unsigned char *_img, int _width, int _height)
+qr_sampling_grid_sample (const qr_sampling_grid * restrict _grid,
+			 unsigned * restrict _data_bits, int _dim, int _fmt_info,
+			 const unsigned char * restrict _img, int _width, int _height)
 {
   int stride;
   int u0;
@@ -3621,9 +3621,9 @@ qr_sampling_grid_sample (const qr_sampling_grid * _grid,
    groups those bytes into Reed-Solomon blocks.
   The individual block pointers are destroyed by this routine.*/
 static void
-qr_samples_unpack (unsigned char **_blocks, int _nblocks,
+qr_samples_unpack (unsigned char ** restrict _blocks, int _nblocks,
 		   int _nshort_data, int _nshort_blocks,
-		   const unsigned *_data_bits, const unsigned *_fp_mask,
+		   const unsigned * restrict _data_bits, const unsigned * restrict _fp_mask,
 		   int _dim)
 {
   unsigned bits;

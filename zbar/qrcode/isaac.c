@@ -12,7 +12,7 @@
 
 
 static void
-isaac_update (isaac_ctx * _ctx)
+isaac_update (isaac_ctx * restrict _ctx)
 {
   unsigned *m;
   unsigned *r;
@@ -87,7 +87,7 @@ isaac_mix (unsigned _x[8])
 
 
 void
-isaac_init (isaac_ctx * _ctx, const void *_seed, int _nseed)
+isaac_init (isaac_ctx * restrict _ctx, const void *_seed, int _nseed)
 {
   const unsigned char *seed;
   unsigned *m;
@@ -136,7 +136,7 @@ isaac_init (isaac_ctx * _ctx, const void *_seed, int _nseed)
 }
 
 unsigned
-isaac_next_uint32 (isaac_ctx * _ctx)
+isaac_next_uint32 (isaac_ctx * restrict _ctx)
 {
   if (!_ctx->n)
     isaac_update (_ctx);
@@ -149,7 +149,7 @@ isaac_next_uint32 (isaac_ctx * _ctx)
   Return: An integer uniformly distributed between 0 (inclusive) and _n
            (exclusive).*/
 unsigned
-isaac_next_uint (isaac_ctx * _ctx, unsigned _n)
+isaac_next_uint (isaac_ctx * restrict _ctx, unsigned _n)
 {
   unsigned r;
   unsigned v;

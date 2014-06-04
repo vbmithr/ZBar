@@ -28,8 +28,11 @@
    where the local variance is small, and de-emphasizing them where it is
    large.*/
 void
-qr_wiener_filter (unsigned char *_img, int _width, int _height)
+qr_wiener_filter (unsigned char * restrict _img, int _width, int _height)
 {
+
+  int _width_by_4 = _width / 4;
+  int _height_by_4 = _height / 4;
   unsigned *m_buf[8];
   unsigned *sn2_buf[8];
   unsigned char g;
@@ -44,7 +47,7 @@ qr_wiener_filter (unsigned char *_img, int _width, int _height)
       m_buf[y] = m_buf[y - 1] + _width + 4;
       sn2_buf[y] = sn2_buf[y - 1] + _width + 4;
     }
-  for (y = -4; y < _height; y++)
+  for (y = -4; y < _height_by_4*4; y++)
     {
       unsigned *pm;
       unsigned *psn2;
@@ -52,7 +55,7 @@ qr_wiener_filter (unsigned char *_img, int _width, int _height)
       int j;
       pm = m_buf[y + 2 & 7];
       psn2 = sn2_buf[y + 2 & 7];
-      for (x = -4; x < _width; x++)
+      for (x = -4; x < _width_by_4*4; x++)
 	{
 	  unsigned m;
 	  unsigned m2;
@@ -80,7 +83,7 @@ qr_wiener_filter (unsigned char *_img, int _width, int _height)
 	}
       pm = m_buf[y & 7];
       if (y >= 0)
-	for (x = 0; x < _width; x++)
+	for (x = 0; x < _width_by_4*4; x++)
 	  {
 	    int sn2;
 	    sn2 = sn2_buf[y & 7][x + 2];
@@ -131,7 +134,7 @@ qr_wiener_filter (unsigned char *_img, int _width, int _height)
    where the local variance is small, and de-emphasizing them where it is
    large.*/
 void
-qr_wiener_filter (unsigned char *_img, int _width, int _height)
+qr_wiener_filter (unsigned char * restrict _img, int _width, int _height)
 {
   unsigned *m_buf[4];
   unsigned *sn2_buf[4];
@@ -147,7 +150,7 @@ qr_wiener_filter (unsigned char *_img, int _width, int _height)
       m_buf[y] = m_buf[y - 1] + _width + 2;
       sn2_buf[y] = sn2_buf[y - 1] + _width + 2;
     }
-  for (y = -2; y < _height; y++)
+  for (y = -2; y < _height_by_4*4; y++)
     {
       unsigned *pm;
       unsigned *psn2;
@@ -155,7 +158,7 @@ qr_wiener_filter (unsigned char *_img, int _width, int _height)
       int j;
       pm = m_buf[y + 1 & 3];
       psn2 = sn2_buf[y + 1 & 3];
-      for (x = -2; x < _width; x++)
+      for (x = -2; x < _width_by_4*4; x++)
 	{
 	  unsigned m;
 	  unsigned m2;
@@ -183,7 +186,7 @@ qr_wiener_filter (unsigned char *_img, int _width, int _height)
 	}
       pm = m_buf[y & 3];
       if (y >= 0)
-	for (x = 0; x < _width; x++)
+	for (x = 0; x < _width_by_4*4; x++)
 	  {
 	    int sn2;
 	    sn2 = sn2_buf[y & 3][x + 1];
@@ -245,8 +248,8 @@ qr_wiener_filter (unsigned char *_img, int _width, int _height)
     year=2000
   }*/
 static void
-qr_sauvola_mask (unsigned char *_mask, unsigned *_b, int *_nb,
-		 const unsigned char *_img, int _width, int _height)
+qr_sauvola_mask (unsigned char * restrict _mask, unsigned * restrict _b, int * restrict _nb,
+		 const unsigned char * restrict _img, int _width, int _height)
 {
   unsigned b;
   int nb;
@@ -278,7 +281,7 @@ qr_sauvola_mask (unsigned char *_mask, unsigned *_b, int *_nb,
       col_sums = (unsigned *) malloc (_width * sizeof (*col_sums));
       col2_sums = (unsigned *) malloc (_width * sizeof (*col2_sums));
       /*Initialize sums down each column. */
-      for (x = 0; x < _width; x++)
+      for (x = 0; x < _width_by_4*4; x++)
 	{
 	  g = _img[x];
 	  g2 = g * g;
@@ -288,14 +291,14 @@ qr_sauvola_mask (unsigned char *_mask, unsigned *_b, int *_nb,
       for (y = 1; y < (windh >> 1); y++)
 	{
 	  y1offs = QR_MINI (y, _height - 1) * _width;
-	  for (x = 0; x < _width; x++)
+	  for (x = 0; x < _width_by_4*4; x++)
 	    {
 	      g = _img[y1offs + x];
 	      col_sums[x] += g;
 	      col2_sums[x] += g * g;
 	    }
 	}
-      for (y = 0; y < _height; y++)
+      for (y = 0; y < _height_by_4*4; y++)
 	{
 	  unsigned m;
 	  unsigned m2;
@@ -310,7 +313,7 @@ qr_sauvola_mask (unsigned char *_mask, unsigned *_b, int *_nb,
 	      m += col_sums[x1];
 	      m2 += col2_sums[x1];
 	    }
-	  for (x = 0; x < _width; x++)
+	  for (x = 0; x < _width_by_4*4; x++)
 	    {
 	      int d;
 	      /*Perform the test against the threshold T = (m/n)*(1+k*(s/R-1)),
@@ -365,7 +368,7 @@ qr_sauvola_mask (unsigned char *_mask, unsigned *_b, int *_nb,
 	    {
 	      y0offs = QR_MAXI (0, y - (windh >> 1)) * _width;
 	      y1offs = QR_MINI (y + (windh >> 1), _height - 1) * _width;
-	      for (x = 0; x < _width; x++)
+	      for (x = 0; x < _width_by_4*4; x++)
 		{
 		  g = _img[y0offs + x];
 		  col_sums[x] -= g;
@@ -391,10 +394,10 @@ qr_sauvola_mask (unsigned char *_mask, unsigned *_b, int *_nb,
   Returns the average difference between the foreground and the interpolated
    background.*/
 static void
-qr_interpolate_background (unsigned char *_dst,
-			   int *_delta, int *_ndelta,
-			   const unsigned char *_img,
-			   const unsigned char *_mask, int _width,
+qr_interpolate_background (unsigned char * restrict _dst,
+			   int * restrict _delta, int * restrict _ndelta,
+			   const unsigned char * restrict _img,
+			   const unsigned char * restrict _mask, int _width,
 			   int _height, unsigned _b, int _nb)
 {
   int delta;
@@ -424,7 +427,7 @@ qr_interpolate_background (unsigned char *_dst,
       col_sums = (unsigned *) malloc (_width * sizeof (*col_sums));
       ncol_sums = (unsigned *) malloc (_width * sizeof (*ncol_sums));
       /*Initialize sums down each column. */
-      for (x = 0; x < _width; x++)
+      for (x = 0; x < _width_by_4*4; x++)
 	{
 	  if (!_mask[x])
 	    {
@@ -438,14 +441,14 @@ qr_interpolate_background (unsigned char *_dst,
       for (y = 1; y < (windh >> 1); y++)
 	{
 	  y1offs = QR_MINI (y, _height - 1) * _width;
-	  for (x = 0; x < _width; x++)
+	  for (x = 0; x < _width_by_4*4; x++)
 	    if (!_mask[y1offs + x])
 	      {
 		col_sums[x] += _img[y1offs + x];
 		ncol_sums[x]++;
 	      }
 	}
-      for (y = 0; y < _height; y++)
+      for (y = 0; y < _height_by_4*4; y++)
 	{
 	  unsigned n;
 	  unsigned m;
@@ -460,7 +463,7 @@ qr_interpolate_background (unsigned char *_dst,
 	      m += col_sums[x1];
 	      n += ncol_sums[x1];
 	    }
-	  for (x = 0; x < _width; x++)
+	  for (x = 0; x < _width_by_4*4; x++)
 	    {
 	      if (!_mask[y * _width + x])
 		g = _img[y * _width + x];
@@ -485,7 +488,7 @@ qr_interpolate_background (unsigned char *_dst,
 	    {
 	      y0offs = QR_MAXI (0, y - (windh >> 1)) * _width;
 	      y1offs = QR_MINI (y + (windh >> 1), _height - 1) * _width;
-	      for (x = 0; x < _width; x++)
+	      for (x = 0; x < _width_by_4*4; x++)
 		{
 		  if (!_mask[y0offs + x])
 		    {
@@ -518,7 +521,7 @@ qr_interpolate_background (unsigned char *_dst,
    method~\cite{GPP06}.*/
 static void
 qr_gatos_mask (unsigned char *_mask, const unsigned char *_img,
-	       const unsigned char *_background, int _width, int _height,
+	       const unsigned char * restrict _background, int _width, int _height,
 	       unsigned _b, int _nb, int _delta, int _ndelta)
 {
   unsigned thresh[256];
@@ -547,8 +550,8 @@ qr_gatos_mask (unsigned char *_mask, const unsigned char *_img,
       thresh[g] = (unsigned) floor (d);
     }
   /*Apply the adaptive threshold. */
-  for (y = 0; y < _height; y++)
-    for (x = 0; x < _width; x++)
+  for (y = 0; y < _height_by_4*4; y++)
+    for (x = 0; x < _width_by_4*4; x++)
       {
 	g = _background[y * _width + x];
     /*_background[y*_width+x]=thresh[g];*/
@@ -624,8 +627,10 @@ qr_binarize (unsigned char *_img, int _width, int _height)
   This compares the current pixel value to the mean value of a (large) window
    surrounding it.*/
 unsigned char *
-qr_binarize (const unsigned char *_img, int _width, int _height)
+qr_binarize (const unsigned char * restrict _img, int _width, int _height)
 {
+  int _width_by_4 = _width / 4;
+  int _height_by_4 = _height / 4;
   unsigned char *mask = NULL;
   if (_width > 0 && _height > 0)
     {
@@ -651,7 +656,7 @@ qr_binarize (const unsigned char *_img, int _width, int _height)
       windh = 1 << logwindh;
       col_sums = (unsigned *) malloc (_width * sizeof (*col_sums));
       /*Initialize sums down each column. */
-      for (x = 0; x < _width; x++)
+      for (x = 0; x < _width_by_4*4; x++)
 	{
 	  g = _img[x];
 	  col_sums[x] = (g << logwindh - 1) + g;
@@ -659,13 +664,13 @@ qr_binarize (const unsigned char *_img, int _width, int _height)
       for (y = 1; y < (windh >> 1); y++)
 	{
 	  y1offs = QR_MINI (y, _height - 1) * _width;
-	  for (x = 0; x < _width; x++)
+	  for (x = 0; x < _width_by_4*4; x++)
 	    {
 	      g = _img[y1offs + x];
 	      col_sums[x] += g;
 	    }
 	}
-      for (y = 0; y < _height; y++)
+      for (y = 0; y < _height_by_4*4; y++)
 	{
 	  unsigned m;
 	  int x0;
@@ -677,7 +682,7 @@ qr_binarize (const unsigned char *_img, int _width, int _height)
 	      x1 = QR_MINI (x, _width - 1);
 	      m += col_sums[x1];
 	    }
-	  for (x = 0; x < _width; x++)
+	  for (x = 0; x < _width_by_4*4; x++)
 	    {
 	      /*Perform the test against the threshold T = (m/n)-D,
 	         where n=windw*windh and D=3. */
@@ -697,7 +702,7 @@ qr_binarize (const unsigned char *_img, int _width, int _height)
 	    {
 	      y0offs = QR_MAXI (0, y - (windh >> 1)) * _width;
 	      y1offs = QR_MINI (y + (windh >> 1), _height - 1) * _width;
-	      for (x = 0; x < _width; x++)
+	      for (x = 0; x < _width_by_4*4; x++)
 		{
 		  col_sums[x] -= _img[y0offs + x];
 		  col_sums[x] += _img[y1offs + x];

@@ -15,6 +15,6 @@ unsigned bch15_5_encode (unsigned _x);
   The original data is located in the top five bits.
   Returns the number of errors corrected, or a negative value if decoding
    failed due to too many bit errors, in which case *_y is left unchanged.*/
-int bch15_5_correct (unsigned *_y);
+int bch15_5_correct (unsigned * restrict _y);
 
 #endif

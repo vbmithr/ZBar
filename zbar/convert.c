@@ -307,8 +307,8 @@ static inline void convert_y_resize (zbar_image_t *dst,
                                      const zbar_format_def_t *srcfmt,
                                      size_t n)
 {
-    uint8_t *psrc, *pdst;
-    unsigned width, height, xpad, y;
+    uint8_t * restrict psrc, * restrict pdst;
+    unsigned width, height_by_4, xpad, y;
 
     if(dst->width == src->width && dst->height == src->height) {
         memcpy((void*)dst->data, src->data, n);
@@ -318,8 +318,8 @@ static inline void convert_y_resize (zbar_image_t *dst,
     pdst = (void*)dst->data;
     width = (dst->width > src->width) ? src->width : dst->width;
     xpad = (dst->width > src->width) ? dst->width - src->width : 0;
-    height = (dst->height > src->height) ? src->height : dst->height;
-    for(y = 0; y < height; y++) {
+    height_by_4 = (dst->height > src->height) ? src->height/4 : dst->height/4;
+    for(y = 0; y < height_by_4*4; y++) {
         memcpy(pdst, psrc, width);
         pdst += width;
         psrc += src->width;
@@ -329,7 +329,7 @@ static inline void convert_y_resize (zbar_image_t *dst,
         }
     }
     psrc -= src->width;
-    for(; y < dst->height; y++) {
+    for(; y < ((dst->height/4)*4); y++) {
         memcpy(pdst, psrc, width);
         pdst += width;
         if(xpad) {
@@ -387,7 +387,7 @@ static void convert_yuv_pack (zbar_image_t *dst,
                               const zbar_format_def_t *srcfmt)
 {
     unsigned long srcm, srcn;
-    uint8_t flags, *srcy, *dstp;
+    uint8_t flags, * restrict srcy, * restrict dstp;
     const uint8_t *srcu, *srcv;
     unsigned srcl, xmask, ymask, x, y;
     uint8_t y0 = 0, y1 = 0, u = 0x80, v = 0x80;
@@ -415,7 +415,7 @@ static void convert_yuv_pack (zbar_image_t *dst,
     srcl = src->width >> srcfmt->p.yuv.xsub2;
     xmask = (1 << srcfmt->p.yuv.xsub2) - 1;
     ymask = (1 << srcfmt->p.yuv.ysub2) - 1;
-    for(y = 0; y < dst->height; y++) {
+    for(y = 0; y < ((dst->height/4)*4); y++) {
         if(y >= src->height) {
             srcy -= src->width;
             srcu -= srcl;  srcv -= srcl;
@@ -423,7 +423,7 @@ static void convert_yuv_pack (zbar_image_t *dst,
         else if(y & ymask) {
             srcu -= srcl;  srcv -= srcl;
         }
-        for(x = 0; x < dst->width; x += 2) {
+        for(x = 0; x < ((dst->width/4)*4); x += 2) {
             if(x < src->width) {
                 y0 = *(srcy++);  y1 = *(srcy++);
                 if(!(x & xmask)) {
@@ -438,7 +438,7 @@ static void convert_yuv_pack (zbar_image_t *dst,
                 *(dstp++) = y1;  *(dstp++) = v;
             }
         }
-        for(; x < src->width; x += 2) {
+        for(; x < ((src->width/4)*4); x += 2) {
             srcy += 2;
             if(!(x & xmask)) {
                 srcu++;  srcv++;
@@ -456,8 +456,8 @@ static void convert_yuv_unpack (zbar_image_t *dst,
                                 const zbar_format_def_t *srcfmt)
 {
     unsigned long dstn, dstm2;
-    uint8_t *dsty, flags;
-    const uint8_t *srcp;
+    uint8_t * restrict dsty, flags;
+    const uint8_t * restrict srcp;
     unsigned srcl, x, y;
     uint8_t y0 = 0, y1 = 0;
 
@@ -478,10 +478,10 @@ static void convert_yuv_unpack (zbar_image_t *dst,
         srcp++;
 
     srcl = src->width + (src->width >> srcfmt->p.yuv.xsub2);
-    for(y = 0; y < dst->height; y++) {
+    for(y = 0; y < ((dst->height/4)*4); y++) {
         if(y >= src->height)
             srcp -= srcl;
-        for(x = 0; x < dst->width; x += 2) {
+        for(x = 0; x < ((dst->width/4)*4); x += 2) {
             if(x < src->width) {
                 y0 = *(srcp++);  srcp++;
                 y1 = *(srcp++);  srcp++;
@@ -521,8 +521,8 @@ static void convert_uv_resample (zbar_image_t *dst,
                                  const zbar_format_def_t *srcfmt)
 {
     unsigned long dstn;
-    uint8_t *dstp, flags;
-    const uint8_t *srcp;
+    uint8_t * restrict dstp, flags;
+    const uint8_t * restrict srcp;
     unsigned srcl, x, y;
     uint8_t y0 = 0, y1 = 0, u = 0x80, v = 0x80;
 
@@ -537,10 +537,10 @@ static void convert_uv_resample (zbar_image_t *dst,
     srcp = src->data;
 
     srcl = src->width + (src->width >> srcfmt->p.yuv.xsub2);
-    for(y = 0; y < dst->height; y++) {
+    for(y = 0; y < ((dst->height/4)*4); y++) {
         if(y >= src->height)
             srcp -= srcl;
-        for(x = 0; x < dst->width; x += 2) {
+        for(x = 0; x < ((dst->width/4)*4); x += 2) {
             if(x < src->width) {
                 if(!(srcfmt->p.yuv.packorder & 2)) {
                     y0 = *(srcp++);  u = *(srcp++);
@@ -576,7 +576,7 @@ static void convert_yuvp_to_rgb (zbar_image_t *dst,
                                  const zbar_image_t *src,
                                  const zbar_format_def_t *srcfmt)
 {
-    uint8_t *dstp, *srcy;
+    uint8_t * restrict dstp, * restrict srcy;
     int drbits, drbit0, dgbits, dgbit0, dbbits, dbbit0;
     unsigned long srcm, srcn;
     unsigned x, y;
@@ -599,10 +599,10 @@ static void convert_yuvp_to_rgb (zbar_image_t *dst,
     assert(src->datalen >= srcn + 2 * srcm);
     srcy = (void*)src->data;
 
-    for(y = 0; y < dst->height; y++) {
+    for(y = 0; y < ((dst->height/4)*4); y++) {
         if(y >= src->height)
             srcy -= src->width;
-        for(x = 0; x < dst->width; x++) {
+        for(x = 0; x < ((dst->width/4)*4); x++) {
             if(x < src->width) {
                 /* FIXME color space? */
                 unsigned y0 = *(srcy++);
@@ -627,8 +627,8 @@ static void convert_rgb_to_yuvp (zbar_image_t *dst,
                                  const zbar_format_def_t *srcfmt)
 {
     unsigned long dstn, dstm2;
-    uint8_t *dsty;
-    const uint8_t *srcp;
+    uint8_t * restrict dsty;
+    const uint8_t * restrict srcp;
     int rbits, rbit0, gbits, gbit0, bbits, bbit0;
     unsigned srcl, x, y;
     uint16_t y0 = 0;
@@ -654,10 +654,10 @@ static void convert_rgb_to_yuvp (zbar_image_t *dst,
     bbit0 = RGB_OFFSET(srcfmt->p.rgb.blue);
 
     srcl = src->width * srcfmt->p.rgb.bpp;
-    for(y = 0; y < dst->height; y++) {
+    for(y = 0; y < ((dst->height/4)*4); y++) {
         if(y >= src->height)
             srcp -= srcl;
-        for(x = 0; x < dst->width; x++) {
+        for(x = 0; x < ((dst->width/4)*4); x++) {
             if(x < src->width) {
                 uint8_t r, g, b;
                 uint32_t p = convert_read_rgb(srcp, srcfmt->p.rgb.bpp);
@@ -684,10 +684,10 @@ static void convert_yuv_to_rgb (zbar_image_t *dst,
                                 const zbar_image_t *src,
                                 const zbar_format_def_t *srcfmt)
 {
-    uint8_t *dstp;
+    uint8_t * restrict dstp;
     unsigned long dstn = dst->width * dst->height;
     int drbits, drbit0, dgbits, dgbit0, dbbits, dbbit0;
-    const uint8_t *srcp;
+    const uint8_t * restrict srcp;
     unsigned srcl, x, y;
     uint32_t p = 0;
 
@@ -711,10 +711,10 @@ static void convert_yuv_to_rgb (zbar_image_t *dst,
 
     assert(srcfmt->p.yuv.xsub2 == 1);
     srcl = src->width + (src->width >> 1);
-    for(y = 0; y < dst->height; y++) {
+    for(y = 0; y < ((dst->height/4)*4); y++) {
         if(y >= src->height)
             srcp -= srcl;
-        for(x = 0; x < dst->width; x++) {
+        for(x = 0; x < ((dst->width/4)*4); x++) {
             if(x < src->width) {
                 uint8_t y0 = *(srcp++);
                 srcp++;
@@ -746,8 +746,8 @@ static void convert_rgb_to_yuv (zbar_image_t *dst,
                                 const zbar_image_t *src,
                                 const zbar_format_def_t *srcfmt)
 {
-    uint8_t *dstp, flags;
-    const uint8_t *srcp;
+    uint8_t * restrict dstp, flags;
+    const uint8_t * restrict srcp;
     int rbits, rbit0, gbits, gbit0, bbits, bbit0;
     unsigned srcl, x, y;
     uint16_t y0 = 0;
@@ -770,10 +770,10 @@ static void convert_rgb_to_yuv (zbar_image_t *dst,
     bbit0 = RGB_OFFSET(srcfmt->p.rgb.blue);
 
     srcl = src->width * srcfmt->p.rgb.bpp;
-    for(y = 0; y < dst->height; y++) {
+    for(y = 0; y < ((dst->height/4)*4); y++) {
         if(y >= src->height)
             srcp -= srcl;
-        for(x = 0; x < dst->width; x++) {
+        for(x = 0; x < ((dst->width/4)*4); x++) {
             if(x < src->width) {
                 uint8_t r, g, b;
                 uint32_t p = convert_read_rgb(srcp, srcfmt->p.rgb.bpp);
@@ -806,10 +806,10 @@ static void convert_rgb_resample (zbar_image_t *dst,
                                   const zbar_format_def_t *srcfmt)
 {
     unsigned long dstn = dst->width * dst->height;
-    uint8_t *dstp;
+    uint8_t * restrict dstp;
     int drbits, drbit0, dgbits, dgbit0, dbbits, dbbit0;
     int srbits, srbit0, sgbits, sgbit0, sbbits, sbbit0;
-    const uint8_t *srcp;
+    const uint8_t * restrict srcp;
     unsigned srcl, x, y;
     uint32_t p = 0;
 
@@ -836,10 +836,10 @@ static void convert_rgb_resample (zbar_image_t *dst,
     sbbit0 = RGB_OFFSET(srcfmt->p.rgb.blue);
 
     srcl = src->width * srcfmt->p.rgb.bpp;
-    for(y = 0; y < dst->height; y++) {
+    for(y = 0; y < ((dst->height/4)*4); y++) {
         if(y >= src->height)
             y -= srcl;
-        for(x = 0; x < dst->width; x++) {
+        for(x = 0; x < ((dst->width/4)*4); x++) {
             if(x < src->width) {
                 uint8_t r, g, b;
                 p = convert_read_rgb(srcp, srcfmt->p.rgb.bpp);
