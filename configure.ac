@@ -71,6 +71,7 @@ AM_CONDITIONAL([WIN32], [test "x$win32" = "xyes"])
 dnl programs
 
 AC_PROG_CC
+AC_PROG_CC_C99
 AM_PROG_CC_C_O
 AC_PROG_CXX
 
