@@ -4,7 +4,7 @@
    Foundation; either version 2.1 of the License, or (at your option) any later
    version.*/
 #if !defined(_qrcode_util_H)
-# define _qrcode_util_H (1)
+#define _qrcode_util_H (1)
 
 #define QR_MAXI(_a,_b)      ((_a)-((_a)-(_b)&-((_b)>(_a))))
 #define QR_MINI(_a,_b)      ((_a)+((_b)-(_a)&-((_b)<(_a))))
@@ -49,8 +49,8 @@
    gives all 64 bits of the result.*/
 #define QR_EXTMUL(_a,_b,_r)    ((_a)*(long long)(_b)+(_r))
 
-unsigned qr_isqrt(unsigned _val);
-unsigned qr_ihypot(int _x,int _y);
-int qr_ilog(unsigned _val);
+unsigned qr_isqrt (unsigned _val);
+unsigned qr_ihypot (int _x, int _y);
+int qr_ilog (unsigned _val);
 
 #endif

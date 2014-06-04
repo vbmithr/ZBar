@@ -1,7 +1,7 @@
 /*Written by Timothy B. Terriberry (tterribe@xiph.org) 1999-2009 public domain.
   Based on the public domain implementation by Robert J. Jenkins Jr.*/
 #if !defined(_isaac_H)
-# define _isaac_H (1)
+#define _isaac_H (1)
 
 
 
@@ -23,7 +23,8 @@ typedef struct isaac_ctx isaac_ctx;
     ISAAC requires an amortized 18.75 instructions to produce a 32-bit value.
     There are no cycles in ISAAC shorter than 2**40 values.
     The expected cycle length is 2**8295 values.*/
-struct isaac_ctx{
+struct isaac_ctx
+{
   unsigned n;
   unsigned r[ISAAC_SZ];
   unsigned m[ISAAC_SZ];
@@ -33,9 +34,9 @@ struct isaac_ctx{
 };
 
 
-void isaac_init(isaac_ctx *_ctx,const void *_seed,int _nseed);
+void isaac_init (isaac_ctx * _ctx, const void *_seed, int _nseed);
 
-unsigned isaac_next_uint32(isaac_ctx *_ctx);
-unsigned isaac_next_uint(isaac_ctx *_ctx,unsigned _n);
+unsigned isaac_next_uint32 (isaac_ctx * _ctx);
+unsigned isaac_next_uint (isaac_ctx * _ctx, unsigned _n);
 
 #endif
