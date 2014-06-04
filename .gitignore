@@ -1,0 +1,17 @@
+**/*~
+**/*.o
+**/*.a
+**/*.lo
+**/*.la
+**/*.pc
+config/*
+**/.deps
+config*
+Makefile*
+aclocal.m4
+autom4te.cache/
+libtool
+**/.dirstamp
+**/.libs
+zbarcam/zbarcam
+zbarimg/zbarimg
